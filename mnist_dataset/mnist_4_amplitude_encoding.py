@@ -26,7 +26,7 @@ class QFCModel(tq.QuantumModule):
         def __init__(self):
             super().__init__()
             self.n_wires = 4
-            self.random_layer = tq.RandomLayer(n_ops=50,
+            self.random_layer = tq.RandomLayer(n_ops=16,
                                                wires=list(range(self.n_wires)))
 
             # gates with trainable parameters
@@ -63,7 +63,7 @@ class QFCModel(tq.QuantumModule):
             self.crx2(self.q_device, wires=[2, 3])
             self.crx1(self.q_device, wires=[1, 2])
             self.crx3(self.q_device, wires=[3, 0])
-
+            self.random_layer(self.q_device)
             # add some more non-parameterized gates (add on-the-fly)
             # tqf.hadamard(self.q_device, wires=3, static=self.static_mode,
             #              parent_graph=self.graph)
@@ -81,46 +81,46 @@ class QFCModel(tq.QuantumModule):
         self.q_layer = self.QLayer()
         self.measure = tq.MeasureAll(tq.PauliZ)
 
-    # def forward(self, x):
-    #     bsz = x.shape[0]
-    #     x = F.avg_pool2d(x, 6).view(bsz, 16)
-    #     print(x[0])
-    #     self.encoder(self.q_device, x)
-    #     print(self.q_device.get_states_1d()[0])
-    #     self.q_layer(self.q_device)
-    #     encoder_circs = tq2qiskit_expand_params(self.q_device, x,
-    #                                             self.encoder.func_list)
-    #     q_layer_circ = tq2qiskit(self.q_device, self.q_layer)
-    #     measurement_circ = tq2qiskit_measurement(self.q_device,
-    #                                              self.measure)
-    #     assembled_circs = qiskit_assemble_circs(encoder_circs,
-    #                                             q_layer_circ,
-    #                                             measurement_circ)
-    #     #print(measurement_circ)
-    #     print(assembled_circs[0].draw())
-    #     assembled_circs[0].draw(output='mpl')
-    #     plt.show()
-    #
-    #     ssss
-    #     x = self.measure(self.q_device)
-    #
-    #     x = F.log_softmax(x, dim=1)
-    #
-    #     return x
-
     def forward(self, x):
         bsz = x.shape[0]
         x = F.avg_pool2d(x, 6).view(bsz, 16)
+        print(x[0])
         self.encoder(self.q_device, x)
+        print(self.q_device.get_states_1d()[0])
         self.q_layer(self.q_device)
+        # encoder_circs = tq2qiskit_expand_params(self.q_device, x,
+        #                                         self.encoder.func_list)
+        q_layer_circ = tq2qiskit(self.q_device, self.q_layer)
+        measurement_circ = tq2qiskit_measurement(self.q_device,
+                                                 self.measure)
+        # assembled_circs = qiskit_assemble_circs(encoder_circs,
+        #                                         q_layer_circ,
+        #                                         measurement_circ)
+        #print(measurement_circ)
+        #print(q_layer_circ[0].draw())
+        q_layer_circ.draw(output='mpl')
+        plt.show()
+
+        ssss
         x = self.measure(self.q_device)
-        # print(x)
-        # x = x.reshape(bsz, 2, 2).sum(-1).squeeze()
-        # print(x)
 
         x = F.log_softmax(x, dim=1)
 
         return x
+
+    # def forward(self, x):
+    #     bsz = x.shape[0]
+    #     x = F.avg_pool2d(x, 6).view(bsz, 16)
+    #     self.encoder(self.q_device, x)
+    #     self.q_layer(self.q_device)
+    #     x = self.measure(self.q_device)
+    #     # print(x)
+    #     # x = x.reshape(bsz, 2, 2).sum(-1).squeeze()
+    #     # print(x)
+    #
+    #     x = F.log_softmax(x, dim=1)
+    #
+    #     return x
 
 
 def train(dataflow, model, device, optimizer):

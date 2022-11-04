@@ -115,10 +115,10 @@ class QFCModel(tq.QuantumModule):
         self.encoder(self.q_device, x)
         self.q_layer(self.q_device)
         x = self.measure(self.q_device)
-        # print(x)
-        # x = x.reshape(bsz, 2, 2).sum(-1).squeeze()
-        # print(x)
-
+        print(x)
+        x = x.reshape(bsz, 2, 2).sum(-1).squeeze()
+        print(x)
+        sss
         x = F.log_softmax(x, dim=1)
 
         return x

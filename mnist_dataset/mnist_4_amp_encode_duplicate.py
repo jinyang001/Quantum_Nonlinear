@@ -154,9 +154,9 @@ class QFCModel(tq.QuantumModule):
         self.encoder(self.q_device, x)
         self.q_layer(self.q_device)
         x = self.measure(self.q_device)
-        #print(x)
+        #print(x[0])
         x = x.reshape(bsz, 4, 2).sum(-1).squeeze()
-        # print(x)
+        # print(x[0])
         # ss
         x = F.log_softmax(x, dim=1)
 
@@ -320,35 +320,6 @@ def main():
     plt.title('Loss in {} epochs'.format(epochs))
     plt.show()
 
-    # run on Qiskit simulator and real Quantum Computers
-    # try:
-    #     from qiskit import IBMQ
-    #     from torchquantum.plugins import QiskitProcessor
-    #
-    #     # firstly perform simulate
-    #     print(f"\nTest with Qiskit Simulator")
-    #     processor_simulation = QiskitProcessor(use_real_qc=False)
-    #     model.set_qiskit_processor(processor_simulation)
-    #     valid_test(dataflow, 'test', model, device, qiskit=True)
-    # #
-    # #     # then try to run on REAL QC
-    # #     backend_name = 'ibmq_lima'
-    # #     print(f"\nTest on Real Quantum Computer {backend_name}")
-    # #     # Please specify your own hub group and project if you have the
-    # #     # IBMQ premium plan to access more machines.
-    # #     processor_real_qc = QiskitProcessor(use_real_qc=True,
-    # #                                         backend_name=backend_name,
-    # #                                         hub='ibm-q',
-    # #                                         group='open',
-    # #                                         project='main',
-    # #                                         )
-    # #     model.set_qiskit_processor(processor_real_qc)
-    # #     valid_test(dataflow, 'test', model, device, qiskit=True)
-    # except ImportError:
-    #     print("Please install qiskit, create an IBM Q Experience Account and "
-    #           "save the account token according to the instruction at "
-    #           "'https://github.com/Qiskit/qiskit-ibmq-provider', "
-    #           "then try again.")
 
 
 if __name__ == '__main__':
