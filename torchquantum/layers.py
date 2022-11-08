@@ -127,6 +127,7 @@ class RandomLayer(tq.QuantumModule):
                  n_params=None,
                  op_ratios=None,
                  op_types=(tq.RX, tq.RY, tq.RZ, tq.CNOT),
+                 #op_types=(tq.RX, tq.RY, tq.RZ),
                  seed=None,
                  qiskit_compatible=False,
                  ):

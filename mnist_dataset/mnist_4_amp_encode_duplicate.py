@@ -48,6 +48,16 @@ class QFCModel(tq.QuantumModule):
             self.crx6 = tq.CRX(has_params=True, trainable=True)
             self.crx7 = tq.CRX(has_params=True, trainable=True)
 
+            self.rx4 = tq.RX(has_params=True, trainable=True)
+            self.ry4 = tq.RY(has_params=True, trainable=True)
+            self.rx5 = tq.RX(has_params=True, trainable=True)
+            self.ry5 = tq.RY(has_params=True, trainable=True)
+
+            self.rx6 = tq.RX(has_params=True, trainable=True)
+            self.ry6 = tq.RY(has_params=True, trainable=True)
+            self.rx7 = tq.RX(has_params=True, trainable=True)
+            self.ry7 = tq.RY(has_params=True, trainable=True)
+
             self.crx8 = tq.CRX(has_params=True, trainable=True)
             self.crx9 = tq.CRX(has_params=True, trainable=True)
             self.crx10 = tq.CRX(has_params=True, trainable=True)
@@ -93,14 +103,23 @@ class QFCModel(tq.QuantumModule):
             self.crx5(self.q_device, wires=[5, 6])
             self.crx7(self.q_device, wires=[7, 4])
 
-            self.crx8(self.q_device, wires=[0, 4])
-            self.crx9(self.q_device, wires=[1, 5])
-            self.crx10(self.q_device, wires=[2, 6])
-            self.crx11(self.q_device, wires=[3, 7])
-            self.crx12(self.q_device, wires=[7, 0])
-            self.crx13(self.q_device, wires=[6, 1])
-            self.crx14(self.q_device, wires=[5, 2])
-            self.crx15(self.q_device, wires=[4, 3])
+            self.rx4(self.q_device, wires=0)
+            self.ry4(self.q_device, wires=1)
+            self.rx5(self.q_device, wires=2)
+            self.ry5(self.q_device, wires=3)
+            self.rx6(self.q_device, wires=4)
+            self.ry6(self.q_device, wires=5)
+            self.rx7(self.q_device, wires=6)
+            self.ry7(self.q_device, wires=7)
+
+            self.crx8(self.q_device, wires=[0, 1])
+            self.crx9(self.q_device, wires=[2, 3])
+            self.crx10(self.q_device, wires=[4, 5])
+            self.crx11(self.q_device, wires=[6, 7])
+            self.crx12(self.q_device, wires=[1, 2])
+            self.crx13(self.q_device, wires=[3, 4])
+            self.crx14(self.q_device, wires=[5, 6])
+            self.crx15(self.q_device, wires=[7, 0])
 
 
             # add some more non-parameterized gates (add on-the-fly)
@@ -150,7 +169,16 @@ class QFCModel(tq.QuantumModule):
     def forward(self, x):
         bsz = x.shape[0]
         x = F.avg_pool2d(x, 6).view(bsz, 16)
-        x = torch.cat((x, x), 1)
+        # print(x.shape)
+        # print(x)
+        #x = torch.cat((x, x), 1)
+        out = x.tolist()
+        for i, t in enumerate(out):
+            out[i] = np.kron(t, t)
+        x= torch.tensor(out).to('cuda')
+        # print(x.shape)
+        # print(x)
+        # ss
         self.encoder(self.q_device, x)
         self.q_layer(self.q_device)
         x = self.measure(self.q_device)
@@ -287,8 +315,12 @@ def main():
         model.q_layer.static_on(wires_per_block=args.wires_per_block)
     train_loss, train_acc = [], []
     test_loss, test_acc = [], []
-    epochs = 100
+    epochs = 50
     print(device)
+    q_layer_circ = tq2qiskit(QFCModel().q_device, QFCModel().q_layer)
+
+    q_layer_circ.draw(output='mpl')
+    plt.show()
     print('start')
     for epoch in range(epochs):
         # train
