@@ -169,16 +169,16 @@ class QFCModel(tq.QuantumModule):
     def forward(self, x):
         bsz = x.shape[0]
         x = F.avg_pool2d(x, 6).view(bsz, 16)
-        # print(x.shape)
-        # print(x)
+        print(x.shape)
+        print(x)
         #x = torch.cat((x, x), 1)
         out = x.tolist()
         for i, t in enumerate(out):
             out[i] = np.kron(t, t)
         x= torch.tensor(out).to('cuda')
-        # print(x.shape)
-        # print(x)
-        # ss
+        print(x.shape)
+        print(x)
+        ss
         self.encoder(self.q_device, x)
         self.q_layer(self.q_device)
         x = self.measure(self.q_device)
